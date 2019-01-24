@@ -1,1 +1,5 @@
+<<<<<<< HEAD
 hello txt
+=======
+hello
+>>>>>>> 11e3fa4... Create hello.txt
