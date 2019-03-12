@@ -5,7 +5,40 @@
 #include "usart3.h"
 #include "stdio.h" 
 #include "math.h" 
+/*
+interrupt（）{
+////接受判断
+c();	
 
+}
+
+void c(unsigned char date)
+{
+//date是中断接收到的一个字节
+static unsigned char date_buf[6]=0,cmd_flag=0,cmd_index=0;
+	switch(date){
+		case 'd':
+			cmd_flag=1;
+			cmd_index=0;
+		break;
+
+		case '#'
+			cmd_flag=0;
+			if(cmd_index==8){
+				printf("time:%d%d%d%d-%d%d-%d%d\r\n",date_buf[0],date_buf[1],date_buf[2],date_buf[3],date_buf[4],date_buf[5],date_buf[6],date_buf[7]);
+			}
+		break;
+
+		default :
+			if(cmd_flag)
+			{
+				date_buf[cmd_index++]=date;
+			}
+		break;
+	}
+	
+}
+*/
 
 int main(){
 	
@@ -24,6 +57,7 @@ int main(){
 		Task_Pc();
 		Task_Pc2();
 		Task_Pc3();
+
 
 		
 	}
