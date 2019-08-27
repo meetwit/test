@@ -1,0 +1,83 @@
+wifi.setmode(wifi.STATIONAP)
+
+ap_cfg={}                                          --AP 配置
+ap_cfg.ssid="Hellow8266"
+ap_cfg.pwd="123456789"
+ap_cfg.save=true
+wifi.ap.config(ap_cfg)
+
+station_cfg={}                                     --Station配置
+station_cfg.ssid="Xiaomi_7C0B"
+station_cfg.pwd="1098886779"
+station_cfg.save=true
+wifi.sta.config(station_cfg)
+wifi.sta.autoconnect(1)
+
+ConnectPort = 8888                                  --当前自己UDP端口，ip由路由器分配
+
+UdpSocket = net.createUDPSocket()   
+UdpSocket:listen(ConnectPort)
+
+UdpSocketTable={}
+UdpIPTable={}
+UdpPortTable={}
+UdpConnectCnt = 0
+UdpCanConnect = 0
+
+UdpSocket:on("receive", function(socket, data, port, ip)
+    UdpCanConnect = 1
+    for i=0,2 do
+        if  UdpIPTable[i] == ip and UdpPortTable[i] == port  then
+            UdpCanConnect = 0
+        end
+    end
+
+    if  UdpCanConnect == 1 then
+        UdpSocketTable[UdpConnectCnt] = socket
+        UdpIPTable[UdpConnectCnt] = ip 
+        UdpPortTable[UdpConnectCnt] = port
+        print("\r\n"..UdpConnectCnt.."-Connect")
+        UdpConnectCnt = UdpConnectCnt + 1
+    end
+    
+    if  UdpConnectCnt == 3 then
+        UdpConnectCnt = 0
+    end
+    uart.write(0,data)
+end)
+
+
+
+mytimer = tmr.create()
+a=50000
+mytimer:register(10, tmr.ALARM_AUTO, function() 
+    
+    for i=0,2 do
+        if  UdpSocketTable[i] ~= nil then
+            UdpSocketTable[i]:send(UdpPortTable[i],UdpIPTable[i],a) 
+        end
+    end
+    
+    a=a-1; 
+    if a==0 
+        then 
+        mytimer:unregister() 
+    end 
+  end)
+mytimer:interval(10)
+
+
+
+printip = 0
+wifi.eventmon.register(wifi.eventmon.STA_DISCONNECTED, function(T)
+    printip = 0
+end)
+
+
+wifi.eventmon.register(wifi.eventmon.STA_GOT_IP, function(T)
+   if printip == 0 then
+      print("+IP"..T.IP)
+      mytimer:start()
+   end
+   printip = 1
+end)
